@@ -1,0 +1,21 @@
+Acceptability Judgement Experiment
+
+Description:
+The data was gathered in the fall of 2018 by Alex Krauska. 
+Participants were 80 native English speakers on Amazon's
+Mechanical Turk. The participants were presented each item
+on a computer screen and prompted to provide a rating for
+the sentence's "naturalness", on a scale of 1 (completely 
+unacceptable) to 7 (perfectly acceptable). The judgements
+obtained for each item and condition were collected into
+a single mean rating.
+
+Format:
+A data frame with 96 observations on 3 variables.
+
+[1] item	Item number
+[2] condition	Condition number (21-24)
+[3] prompt	The sentence which participants responded
+		to
+[4] mean_rating	The mean rating (out of 7) given to that
+		item and condition
