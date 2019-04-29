@@ -1,0 +1,46 @@
+Eye Tracking Experiment: Category Ambiguity
+
+Description:
+The data was gathered in the spring of 2018 by Alex Krauska.
+Participants were 44 undergraduate students at Northwestern
+University. The data was gathered using an EyeLink 1000 
+Plus. The participants were presented each item on a
+computer screen, and instructed to read as naturally as
+possible (silently). After reading the sentence the 
+participants answered a comprehension question to ensure that
+they had read the sentence fully and thoroughly. For any
+item during which the participant blinked at the critical
+region (the region of interest in the sentence), the data
+was excluded. Participants that had too many trials
+excluded were excluded altogether. The data that remained
+was converted to a readable format using scripts provided
+by the University of Massachussetts, Amherst.
+
+Format:
+A data frame with 9859 observations of 11 variables.
+
+[1] subj	Subject number (anonymized)
+[2] cond	Condition number (21-24)
+[3] item	Item number
+[4] value	Fixation time for that observation
+[5] region	Region in the sentence (1-3)
+[6] fixationtype Type of fixation:
+			ff: first fixation
+			fp: first pass
+			rp: regression path
+			tt: total time
+			(others are irrelevant to this study)
+[7] logRT	Log Reading Time; log(value)
+[8] z		z-score relative to the mean for that
+		condition (function zscoreET)
+[9] mean_rating Mean rating, provided by the acceptability
+		judgement data set
+[10] derivation Derivation status (derived or underived)
+[11] base	Base category of the word (noun or verb)
+
+The original (un-tidied) data set had 16686 observations
+of 13 variables. Several variables were relevant in earlier
+stages of file conversion and data analysis, but are no
+longer relevant to the analysis of the data. Several fixation
+types were excluded because we do not expect them to exhibit
+any experimental effects.
