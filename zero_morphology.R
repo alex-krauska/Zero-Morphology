@@ -52,7 +52,7 @@ zm_data <- zm_data %>%
 
 # save zm_data as an RDS for faster access in the future
 zm_data %>% 
-  saveRDS("data/zm_data.rds")
+  saveRDS("data/zm_data.RDS")
 
 # set contrasts
 contrasts(zm_data$base) = c(-0.5,0.5)
@@ -84,7 +84,7 @@ region_2 <- zm_data %>%
 # Modeling ----------------------------------------------------------------
 
 # Does mean rating effect reading times at region 2?
-rating_fn <- ca_models <- function(df){
+rating_fn <- function(df){
   lmer(logRT ~ mean_rating + (1|subj) + (1|item), data = df)
 }
 
@@ -110,32 +110,45 @@ region_2 %>%
   ylab("Log Reading Time")
 
 # Does derivation incur a reading time slowdown?
-der_model_fn <- function(df){
-  lmer(logRT ~ derivation/base + (1|mean_rating) + (1|subj) + (1|item), data = df)
+der_model_fn1 <- function(df){
+  lmer(logRT ~ base/derivation + (1|subj) + (1|item), data = df)
+}
+
+der_model_fn2 <- function(df){
+  lmer(logRT ~ base/derivation + (1|mean_rating) + (1|subj), data = df)
 }
 
 der_models <- region_2 %>%
   group_by(fixationtype) %>% 
   nest() %>% 
   mutate(
-    model = map(data, der_model_fn),
-    pred = map2(data, model, add_predictions)
+    model_1 = map(data, der_model_fn1),
+    pred_1 = map2(data, model_1, add_predictions),
+    model_2 = map(data, der_model_fn2),
+    pred_2 = map2(data, model_2, add_predictions)
   )
 
-summary(der_models$model[[1]])
-summary(der_models$model[[2]])
-summary(der_models$model[[3]])
-summary(der_models$model[[4]])
+summary(der_models$model_1[[1]])
+summary(der_models$model_1[[2]])
+summary(der_models$model_1[[3]])
+summary(der_models$model_1[[4]])
+
+# Models including mean_rating as a random effect
+summary(der_models$model_2[[1]])
+summary(der_models$model_2[[2]])
+summary(der_models$model_2[[3]])
+summary(der_models$model_2[[4]])
 
 der_preds <- der_models  %>% 
-  unnest(pred)
+  unnest(pred_1)
 
 # derivation predictions
 der_preds %>%
   ggplot(aes(x = derivation, y = pred, group = cond, fill = base))+
   geom_boxplot()+
   scale_x_discrete("Derivation", limits = c("underived", "derived"))+
-  facet_wrap(~fixationtype, scales = "free", labeller = as_labeller(region_labs))
+  facet_wrap(~fixationtype, scales = "free", labeller = as_labeller(region_labs))+
+  ylab("Log Reading Time")
 
 # derivation predictions plus linear model
 der_preds %>% 
@@ -145,6 +158,19 @@ der_preds %>%
     facet_grid(~fixationtype, scales = "free", labeller = as_labeller(region_labs))+
     geom_jitter(alpha = 0.2)+
     scale_x_discrete("Derivation", limits = c("underived", "derived"))+
-    labs(title = "First Pass and Regression Path \nLog Reading Times at the Critical Region \nControlling for Subject, Item, and Acceptability Rating")+
-    ylab("Model-Adjusted Log Reading Time")+
+    labs(title = "First Pass and Regression Path \nLog Reading Times at the Critical Region \nControlling for Subject and Item")+
+    ylab("Log Reading Time")+
     theme(legend.position = "right")
+
+# Model 2 derivation predictions
+der_preds2 <- der_models  %>% 
+  unnest(pred_2)
+
+der_preds2 %>%
+  ggplot(aes(x = derivation, y = pred, group = cond, fill = base))+
+  geom_boxplot()+
+  scale_x_discrete("Derivation", limits = c("underived", "derived"))+
+  facet_wrap(~fixationtype, scales = "free", labeller = as_labeller(region_labs))+
+  ylab("Log Reading Time")
+
+
