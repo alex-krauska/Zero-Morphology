@@ -1,6 +1,21 @@
-## Zero Morphology in On-line Sentence Processing: Exploratory Data Analysis
-# Alex Krauska
+---
+title: 'Zero Morphology: Summary of Data Analysis'
+author: "Alex Krauska"
+date: "May 7, 2019"
+output: html_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+## Datasets
+
+The datasets used in this data analysis were the untidy data set, `ET_data.txt`, and the tidy datasets `zm_data.rds` and `zm_rating.rds`. The codebooks for both tidied datasets can be found in the `data` directory.
+
+```{r, message = FALSE}
 # load packages
 library(tidyverse)
 library(modelr)
@@ -8,7 +23,10 @@ library(lme4)
 library(lmerTest)
 library(MASS)
 library(languageR)
+```
 
+Data tidying:
+```{r}
 # load unprocessed eye tracking data set
 zm_data <- read_tsv("data/unprocessed/ET_data.txt")
 
@@ -53,7 +71,10 @@ zm_data <- zm_data %>%
 # save zm_data as an RDS for faster access in the future
 zm_data %>% 
   saveRDS("data/zm_data.RDS")
+```
 
+## Overview of Data
+```{r}
 # region and fixation labels for graphs
 region_labs <- c(
   `1` = "... to / the",
@@ -71,10 +92,12 @@ zm_data %>%
   geom_boxplot()+
   facet_grid(fixationtype~region, scales = "free", labeller = as_labeller(region_labs))+
   scale_x_discrete("Derivation", limits = c("underived", "derived"))
+```
 
+## Models
 
-# Modeling ----------------------------------------------------------------
-
+The first set of models investigates the effect of mean rating on reading times at region 2 for each dependent measure. The visualization below demonstrates that there is a significant effect of mean rating on reading times.
+```{r}
 # set contrasts
 contrasts(zm_data$base) = c(-0.5,0.5)
 contrasts(zm_data$derivation) = c(0.5,-0.5)
@@ -98,8 +121,6 @@ summary(rating_model$model[[2]])
 summary(rating_model$model[[3]])
 summary(rating_model$model[[4]])
 
-# resoundingly, yes, mean rating does affect the reading times.
-
 region_2 %>% 
   ggplot(aes(x = mean_rating, y = logRT))+
   geom_point()+
@@ -109,8 +130,11 @@ region_2 %>%
   xlab("Mean Rating")+
   ylab("Log Reading Time")
 
+```
+<br>
+The second, third, and fourth sets of models investigate the role of derivation in reading times at region 2 for all four dependent measures. The first of the three models, labeled below as `model_1`, predicts log reading time by derivation and base, and the interaction between them, with subject and item as fixed efffects. The second, `model_2`, predicts log reading time by derivation nested within levels of base, with subject and item as fixed effects. Because the base-noun conditions and the base-verb conditions have different word lists and are not minimal pairs, this model helps to tease apart the two base-category groups and ensure that the observed effect is not driven by one group. The third set of models integrates mean rating as a fixed effect to verify that the effect of derivation is not in fact driven by low acceptability ratings.
 
-### Does derivation incur a reading time slowdown?
+```{r}
 # model 1: logRT predicted by the interaction between derivation and
 # base, with subject and item as random effects
 der_model_fn1 <- function(df){
@@ -159,9 +183,10 @@ summary(der_models$model_3[[2]]) # fp
 summary(der_models$model_3[[3]]) # rp
 summary(der_models$model_3[[4]]) # tt
 
+```
 
-# Visualizations ----------------------------------------------------------
-
+## Visualizations
+```{r}
 der_preds <- der_models  %>% 
   unnest(pred_1)
 
@@ -196,4 +221,15 @@ der_preds2 %>%
   facet_wrap(~fixationtype, scales = "free", labeller = as_labeller(region_labs))+
   ylab("Log Reading Time")
 
+# model 3 derivation predictions
+der_preds3 <- der_models  %>% 
+  unnest(pred_3)
+
+der_preds3 %>%
+  ggplot(aes(x = derivation, y = pred, group = cond, fill = base))+
+  geom_boxplot()+
+  scale_x_discrete("Derivation", limits = c("underived", "derived"))+
+  facet_wrap(~fixationtype, scales = "free", labeller = as_labeller(region_labs))+
+  ylab("Log Reading Time")
+```
 
