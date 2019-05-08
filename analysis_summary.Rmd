@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The datasets used in this data analysis were the untidy data set, `ET_data.txt`, and the tidy datasets `zm_data.rds` and `zm_rating.rds`. The codebooks for both tidied datasets can be found in the `data` directory.
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
 # load packages
 library(tidyverse)
 library(modelr)
@@ -73,7 +73,7 @@ zm_data %>%
   saveRDS("data/zm_data.RDS")
 ```
 
-## Overview of Data
+## Overview of the Data
 ```{r}
 # region and fixation labels for graphs
 region_labs <- c(
@@ -116,10 +116,10 @@ rating_model <- region_2 %>%
   nest() %>% 
   mutate(model = map(data, rating_fn))
 
-summary(rating_model$model[[1]])
-summary(rating_model$model[[2]])
-summary(rating_model$model[[3]])
-summary(rating_model$model[[4]])
+summary(rating_model$model[[1]]) # ff
+summary(rating_model$model[[2]]) # fp
+summary(rating_model$model[[3]]) # rp
+summary(rating_model$model[[4]]) # tt
 
 region_2 %>% 
   ggplot(aes(x = mean_rating, y = logRT))+
@@ -184,6 +184,9 @@ summary(der_models$model_3[[3]]) # rp
 summary(der_models$model_3[[4]]) # tt
 
 ```
+
+<br>
+Because the four models converge on the same conclusions, it is unlikely that there is a risk for the multiple comparisons problem. If the probability of incorrectly rejecting the null hypothesis is 5%, the likelihood of each model incorrectly rejecting the null hypothesis in this case would be less than 1 in 1000.
 
 ## Visualizations
 ```{r}
