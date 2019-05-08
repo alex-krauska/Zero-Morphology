@@ -187,6 +187,7 @@ summary(der_models$model_3[[4]]) # tt
 
 <br>
 There is a risk for the multiple comparisons problem, but because the four models converge on the same conclusions, it is unlikely that the null hypothesis was incorrectly rejected. If the probability of incorrectly rejecting the null hypothesis is 5%, the likelihood of each model incorrectly rejecting the null hypothesis in this case would be less than 1 in 1000.
+<br>
 
 ## Visualizations
 ```{r}
