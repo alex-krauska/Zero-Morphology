@@ -110,12 +110,22 @@ region_2 %>%
   ylab("Log Reading Time")
 
 # Does derivation incur a reading time slowdown?
+# model 1: logRT predicted by derivation nested within levels of base,
+# with subject and item as random effects
 der_model_fn1 <- function(df){
-  lmer(logRT ~ base/derivation + (1|subj) + (1|item), data = df)
+  lmer(logRT ~ base/derivation + (1|subj) + (1|item) + 0, data = df)
 }
 
+# model 2: logRT predicted by derivation nested within levels of base,
+# with mean_rating as a fixed effect and subject as a random effect
 der_model_fn2 <- function(df){
-  lmer(logRT ~ base/derivation + (1|mean_rating) + (1|subj), data = df)
+  lmer(logRT ~ base/derivation + mean_rating + (1|subj) + 0, data = df)
+}
+
+# model 3: logRT predicted by the interaction between derivation and
+# base, with subject and item as random effects
+der_model_fn3 <- function(df){
+  lmer(logRT ~ derivation*base + (1|subj) + (1|item), data = df)
 }
 
 der_models <- region_2 %>%
@@ -125,7 +135,9 @@ der_models <- region_2 %>%
     model_1 = map(data, der_model_fn1),
     pred_1 = map2(data, model_1, add_predictions),
     model_2 = map(data, der_model_fn2),
-    pred_2 = map2(data, model_2, add_predictions)
+    pred_2 = map2(data, model_2, add_predictions),
+    model_3 = map(data, der_model_fn3),
+    pred_3 = map2(data, model_3, add_predictions)
   )
 
 summary(der_models$model_1[[1]])
@@ -133,11 +145,17 @@ summary(der_models$model_1[[2]])
 summary(der_models$model_1[[3]])
 summary(der_models$model_1[[4]])
 
-# Models including mean_rating as a random effect
+# Models including mean_rating as a fixed effect
 summary(der_models$model_2[[1]])
 summary(der_models$model_2[[2]])
 summary(der_models$model_2[[3]])
 summary(der_models$model_2[[4]])
+
+# interaction between derivation and base
+summary(der_models$model_3[[1]])
+summary(der_models$model_3[[2]])
+summary(der_models$model_3[[3]])
+summary(der_models$model_3[[4]])
 
 der_preds <- der_models  %>% 
   unnest(pred_1)
