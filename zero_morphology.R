@@ -83,7 +83,7 @@ region_2 <- zm_data %>%
 
 # Modeling ----------------------------------------------------------------
 
-# Does mean rating effect reading times at region 2?
+### Does mean rating effect reading times at region 2?
 rating_fn <- function(df){
   lmer(logRT ~ mean_rating + (1|subj) + (1|item), data = df)
 }
@@ -109,7 +109,8 @@ region_2 %>%
   xlab("Mean Rating")+
   ylab("Log Reading Time")
 
-# Does derivation incur a reading time slowdown?
+
+### Does derivation incur a reading time slowdown?
 # model 1: logRT predicted by derivation nested within levels of base,
 # with subject and item as random effects
 der_model_fn1 <- function(df){
@@ -140,27 +141,31 @@ der_models <- region_2 %>%
     pred_3 = map2(data, model_3, add_predictions)
   )
 
-summary(der_models$model_1[[1]])
-summary(der_models$model_1[[2]])
-summary(der_models$model_1[[3]])
-summary(der_models$model_1[[4]])
+summary(der_models$model_1[[1]]) # ff
+summary(der_models$model_1[[2]]) # fp
+summary(der_models$model_1[[3]]) # rp
+summary(der_models$model_1[[4]]) # tt
 
 # Models including mean_rating as a fixed effect
-summary(der_models$model_2[[1]])
-summary(der_models$model_2[[2]])
-summary(der_models$model_2[[3]])
-summary(der_models$model_2[[4]])
+summary(der_models$model_2[[1]]) # ff
+summary(der_models$model_2[[2]]) # fp
+summary(der_models$model_2[[3]]) # rp
+summary(der_models$model_2[[4]]) # tt
 
 # interaction between derivation and base
-summary(der_models$model_3[[1]])
-summary(der_models$model_3[[2]])
-summary(der_models$model_3[[3]])
-summary(der_models$model_3[[4]])
+summary(der_models$model_3[[1]]) # ff
+summary(der_models$model_3[[2]]) # fp
+summary(der_models$model_3[[3]]) # rp
+summary(der_models$model_3[[4]]) # tt
+
+
+
+# Visualizations ----------------------------------------------------------
 
 der_preds <- der_models  %>% 
   unnest(pred_1)
 
-# derivation predictions
+# model 1 derivation predictions
 der_preds %>%
   ggplot(aes(x = derivation, y = pred, group = cond, fill = base))+
   geom_boxplot()+
@@ -180,7 +185,7 @@ der_preds %>%
     ylab("Log Reading Time")+
     theme(legend.position = "right")
 
-# Model 2 derivation predictions
+# model 2 derivation predictions
 der_preds2 <- der_models  %>% 
   unnest(pred_2)
 
