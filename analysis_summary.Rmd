@@ -96,7 +96,29 @@ zm_data %>%
 
 ## Models
 
-The first set of models investigates the effect of mean rating on reading times at region 2 for each dependent measure. The visualization below demonstrates that there is a significant effect of mean rating on reading times.
+To begin, let's look at the region preceding the critical area. This includes the preamble to the categorially ambiguous word, including *to* or *the* depending on the condition. The model identified the effect of derivation and base on log reading time, with subject and item as random effects. At region 1, there is no reason to expect a significant difference in reading times for any conditions, because the preambles were identical except for *to* or *the* which cued the noun or verb reading for the target word.
+```{r}
+region_1 <- zm_data %>% 
+  filter(region == 1)
+
+reg_1_model <- function(df){
+  lmer(logRT ~ derivation + base + (1|subj) + (1|item), data = df)
+}
+
+reg_1_mod <- region_1 %>% 
+  group_by(fixationtype) %>% 
+  nest() %>% 
+  mutate(model = map(data, reg_1_model))
+
+summary(reg_1_mod$model[[1]]) # ff
+summary(reg_1_mod$model[[2]]) # fp
+summary(reg_1_mod$model[[3]]) # rp
+summary(reg_1_mod$model[[4]]) # tt
+```
+
+As suggested by these models, there is no significant effect of derivation or base category (p > 0.1).
+
+Because there was some concern regarding the variability in sentence acceptability, especially between conditions, the next set of models investigates the effect of mean rating on reading times at region 2 for each dependent measure. The visualization below demonstrates the significant effect of mean rating on reading times.
 ```{r}
 # set contrasts
 contrasts(zm_data$base) = c(-0.5,0.5)
@@ -131,6 +153,7 @@ region_2 %>%
   ylab("Log Reading Time")
 
 ```
+
 <br>
 The second, third, and fourth sets of models investigate the role of derivation in reading times at region 2 for all four dependent measures. The first of the three models, labeled below as `model_1`, predicts log reading time by derivation and base, and the interaction between them, with subject and item as fixed efffects. The second, `model_2`, predicts log reading time by derivation nested within levels of base, with subject and item as fixed effects. Because the base-noun conditions and the base-verb conditions have different word lists and are not minimal pairs, this model helps to tease apart the two base-category groups and ensure that the observed effect is not driven by one group. The third set of models integrates mean rating as a fixed effect to verify that the effect of derivation is not in fact driven by low acceptability ratings.
 

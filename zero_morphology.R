@@ -79,11 +79,30 @@ zm_data %>%
 contrasts(zm_data$base) = c(-0.5,0.5)
 contrasts(zm_data$derivation) = c(0.5,-0.5)
 
+### Is there an effect of derivation in region 1 for any dependent measure?
+# Subsetting region 1
+region_1 <- zm_data %>% 
+  filter(region == 1)
+
+reg_1_model <- function(df){
+  lmer(logRT ~ derivation*base + (1|subj) + (1|item), data = df)
+}
+
+reg_1_mod <- region_1 %>% 
+  group_by(fixationtype) %>% 
+  nest() %>% 
+  mutate(model = map(data, reg_1_model))
+
+summary(reg_1_mod$model[[1]]) # ff
+summary(reg_1_mod$model[[2]]) # fp
+summary(reg_1_mod$model[[3]]) # rp
+summary(reg_1_mod$model[[4]]) # tt
+
+### Does mean rating effect reading times at region 2?
 # Subsetting region 2
 region_2 <- zm_data %>% 
   filter(region == 2)
 
-### Does mean rating effect reading times at region 2?
 rating_fn <- function(df){
   lmer(logRT ~ mean_rating + (1|subj) + (1|item), data = df)
 }
@@ -93,10 +112,10 @@ rating_model <- region_2 %>%
   nest() %>% 
   mutate(model = map(data, rating_fn))
 
-summary(rating_model$model[[1]])
-summary(rating_model$model[[2]])
-summary(rating_model$model[[3]])
-summary(rating_model$model[[4]])
+summary(rating_model$model[[1]]) # ff
+summary(rating_model$model[[2]]) # fp
+summary(rating_model$model[[3]]) # rp
+summary(rating_model$model[[4]]) # tt
 
 # resoundingly, yes, mean rating does affect the reading times.
 
